@@ -21,4 +21,4 @@
 ## 🕐 最後更新
 - 時間：2026-09-28 19:52
 - 更新者：opencode @ DESKTOP-9CRMHFD
-- Git push：❌ 未推（接著建立 repo 後補上）
+- Git push：✅ 已推（jobehsieh/strategy-params）
