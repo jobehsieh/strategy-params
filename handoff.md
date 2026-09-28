@@ -72,5 +72,5 @@
 - 時間：2026-09-28 22:30
 - 更新者：opencode @ DESKTOP-9CRMHFD
 - 本次重點：產出腳本重建並移入 `scripts/`（逐格比對 issues=0）、來源路徑更正為 `H:`、截圖嵌入機制實測通過
-- Git push：見下方（commit 待填）
+- Git push：✅ 已推（jobehsieh/strategy-params，master，commit `4dc8e73`）
 - L3 Obsidian：本次在此電腦收工，無 Obsidian MCP，L3 詳細紀錄未寫（下次到有 Obsidian 的電腦再補）
