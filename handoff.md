@@ -43,7 +43,7 @@
    - 截圖存到 `screenshots\<策略名稱>.png`，重跑 `build_excel.py` 即自動嵌入
    - ⚠ 必須先手動套用「彙整主表 → 所有參數設定值」的參數，否則截圖數字會對不上
 2. **比對 .wsp 程式參數**：把「所有參數設定值」逐項對上 PowerLanguage 的 input 現值，填回主表第 18 欄
-3. 更新 `AGENTS.md`「資料夾結構」與「目標與路線圖」（標記階段一、階段二完成）
+3. 階段四：納入其他策略／其他最佳化工作區的結果（`AGENTS.md` 路線圖已登記）
 
 ## ⚠️ 注意事項
 - **原始最佳化工作區 `E:\Jobe\群益交易程式\` 不在本機**；本機 `.wsp` 最後修改時間為 2026-09-04，早於最佳化作業（2026-09-24~28），**務必先核對參數再回測**
@@ -52,10 +52,12 @@
 - **策略 12 邊界風險**：Multiplier=0.5 在搜尋下限、TakeProfit=1400 在上限，尚未向外延伸驗證
 - **策略 1 資料遺失**：R2/R3 原始 .MCReport 被後續肯特納通道作業以相同通用檔名覆寫，只剩最佳一組摘要
 - 「所有參數設定值」與「R3 WFO推薦參數」**刻意不同**（前者=最高淨利輪，後者=WFO推薦），切勿混用
+- **產出腳本在暫存區**（`C:\Users\user\AppData\Local\Temp\opencode\build_excel.py`），換電腦不會保留。要長期保留請複製進本專案 `scripts/`（尚未複製）
 - 本專案在 Google 雲端硬碟，git 若寫入異常：`git config windows.appendAtomically false`
 - 不要把 API key 寫進 repo；放 `.env`（已在 .gitignore）
 
 ## 🕐 最後更新
-- 時間：2026-09-28 20:35
+- 時間：2026-09-28 20:50
 - 更新者：opencode @ DESKTOP-9CRMHFD
-- Git push：⏳ 尚未（本次新增 xlsx 待 commit）
+- Git push：⏳ 待推（收工 commit）
+- L3 Obsidian：本次在此電腦收工，無 Obsidian MCP，L3 詳細紀錄未寫（下次到有 Obsidian 的電腦再補）
