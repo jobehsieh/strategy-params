@@ -23,6 +23,10 @@
 ├── handoff.md         # 交接檔
 ├── .gitignore
 ├── 策略最佳化參數彙整_20260928.xlsx   # 主成果（Muti-Agents 0924 的 13 個策略）
+├── scripts/
+│   ├── build_summary.py   # 產出腳本：重跑即重建整份彙整 xlsx
+│   └── curated_notes.py   # 人工策展註記（商品/週期、WFO 推薦參數、備註、說明頁敘述）
+├── screenshots/       # 平倉權益曲線截圖 <策略名稱>.png（目錄隨版控，內容不進版控）
 └── .git/              # git 版本控制（L2）
 ```
 
@@ -39,8 +43,14 @@
 - 截圖嵌入機制：圖檔命名 `<策略名稱>.png` 放入 `screenshots/`，重跑產生腳本即自動嵌入
 
 ## 產出腳本
-- `C:\Users\user\AppData\Local\Temp\opencode\build_excel.py`（暫存區，跨電腦不保留；核心邏輯：掃描來源目錄所有 `*.xlsx` 明細分頁 → 逐分頁取 `Net Profit` 最大列 → 選全輪次淨利最高者）
-- 來源工作區：`G:\我的雲端硬碟\Muti-Agents 0924`（23 份最佳化報告 .xlsx）
+- `scripts/build_summary.py`（已進版控，換電腦不會遺失）
+  - 執行：`python scripts\build_summary.py`（輸出到專案根目錄、檔名帶今天日期）
+  - 可選參數：`--out <輸出路徑>`、`--source <來源工作區>`、`--date YYYY-MM-DD`
+  - 核心邏輯：掃描來源目錄所有 `*.xlsx` 明細分頁 → 逐分頁取 `Net Profit` 最大列 → 選全輪次淨利最高者
+  - 附帶能力：讀 `screenshots\<策略名稱>.png` 自動嵌入「平倉權益曲線圖」分頁（圖寬上限 900px 等比縮放）
+- `scripts/curated_notes.py`：**人工**策展註記（商品/週期、R3 WFO 推薦參數、特殊備註、說明頁敘述），這些無法從來源自動推導，故與腳本分離
+- 來源工作區：`H:\我的雲端硬碟\Muti-Agents 0924`（23 份最佳化報告 .xlsx；舊成果檔記載為 `G:` 磁碟，已於 2026-09-28 更新）
+- 重跑結果固定為：策略 13 個／輪次 38 列／WFO 視窗 106 列／來源檔 23 份
 
 
 ## 同步層級（本專案初始化至第 2 層級）

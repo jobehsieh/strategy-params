@@ -4,3 +4,8 @@ desktop.ini
 .env
 *.key
 credentials.*
+__pycache__/
+*.pyc
+
+# 平倉權益曲線截圖：目錄保留（.gitkeep），圖檔本體不進版控
+screenshots/*.png
