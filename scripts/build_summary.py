@@ -31,6 +31,7 @@ from openpyxl.utils import get_column_letter
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import curated_notes as CN  # noqa: E402  人工策展註記（非來源可推導）
+import compare_wsp as CW    # noqa: E402  .wsp 程式參數一致性比對
 
 # ---------------------------------------------------------------------------
 # 設定
@@ -144,6 +145,12 @@ SHEET_SPECS = {
         "wrap_cols": {"M"},
         "numfmt": {},
     },
+    "wsp參數比對": {
+        "widths": {"A": 6, "B": 26, "C": 9, "D": 16, "E": 14, "F": 16, "G": 11, "H": 60},
+        "freeze": "A4",
+        "wrap_cols": {"H"},
+        "numfmt": {},
+    },
     "平倉權益曲線圖": {
         "widths": {"A": 30, "B": 20},
         "freeze": None,
@@ -172,6 +179,9 @@ DETAIL_HEADERS = [
 WFO_HEADERS = [
     "編號", "策略名稱", "WFO", "窗口", "視窗起", "IS結束/OOS起", "視窗迄", "OOS淨利",
     "OOS獲利因子", "OOS交易數", "OOS勝率%", "OOS最大日內回撤", "該窗最佳參數",
+]
+WSP_HEADERS = [
+    "編號", "策略名稱", "視窗", "input", "報告值", "wsp值", "判定", "說明",
 ]
 
 
@@ -489,7 +499,9 @@ def write_main_sheet(ws, main_rows, files, strategies, build_date, source_dir):
                 % (source_dir, len(files), build_date))
     ws["A3"] = ("⚠「所有參數設定值」＝最高淨利那一輪的實際參數；「R3 WFO推薦參數(參考)」＝"
                 "前向最佳化各視窗推薦值，兩者刻意不同，切勿混用。"
-                "平倉權益曲線圖與程式參數一致性待 MultiCharts 補齊。黃色底＝該策略有重大警訊需複核。")
+                "第18欄「程式參數一致性」＝主表參數 vs .wsp input 現值自動比對結果，"
+                "逐項明細見「wsp參數比對」分頁。"
+                "黃色底＝該策略有重大警訊需複核。")
     for i, head in enumerate(MAIN_HEADERS, start=1):
         ws.cell(row=4, column=i, value=head)
 
@@ -560,6 +572,29 @@ def write_wfo_sheet(ws, wfos, strategies):
             ws.cell(row=r, column=8).fill = C_NEG_FILL
         if item["trades"] == 0:
             ws.cell(row=r, column=9).fill = C_NOTRADE_FILL
+    return ws
+
+
+def write_wsp_sheet(ws, wsp_rows):
+    spec = SHEET_SPECS["wsp參數比對"]
+    ws["A1"] = "MultiCharts .wsp 程式參數一致性比對（主表「所有參數設定值」vs .wsp 的 input 現值）"
+    for i, head in enumerate(WSP_HEADERS, start=1):
+        ws.cell(row=3, column=i, value=head)
+
+    for r, item in enumerate(wsp_rows, start=4):
+        for c, value in enumerate(item, start=1):
+            cellobj = ws.cell(row=r, column=c, value=value)
+            letter = get_column_letter(c)
+            cellobj.font = F_BODY
+            cellobj.alignment = A_BODY_TOP_WRAP if letter in spec["wrap_cols"] else A_BODY_TOP
+        if len(item) >= 7:
+            verdict = item[6]
+            if verdict == "DIFF":
+                ws.cell(row=r, column=7).fill = C_WARN_FILL
+            elif verdict == "ONLY_WSP":
+                ws.cell(row=r, column=7).fill = C_NOTRADE_FILL
+            elif verdict == "ONLY_REPORT":
+                ws.cell(row=r, column=7).fill = C_NEG_FILL
     return ws
 
 
@@ -658,17 +693,32 @@ def build(source_dir, output, build_date):
 
     main_rows, picked = build_main_rows(files, rounds, wfos, strategies)
 
+    # .wsp 程式參數一致性比對：填主表第 18 欄（索引 17）＋收集「wsp參數比對」分頁明細
+    wsp_rows = []
+    wsp_use_best = {}   # sid -> 是否用到 _BEST.wsp
+    for row in main_rows:
+        sid, name = row[0], row[1]
+        p14 = row[13]
+        wsp_path = CW.resolve_wsp(sid, name, MC_WSP_DIR)
+        wsp_use_best[sid] = wsp_path is not None and "_BEST" in os.path.basename(wsp_path)
+        summary, detail = CW.compare_strategy(str(name), p14, wsp_path)
+        row[17] = summary
+        for d in detail:
+            wsp_rows.append([sid, name] + list(d))
+
     wb = openpyxl.Workbook()
     wb.remove(wb.active)
     ws_main = wb.create_sheet("彙整主表")
     ws_detail = wb.create_sheet("全部輪次明細")
     ws_wfo = wb.create_sheet("R3_WFO逐窗明細")
+    ws_wsp = wb.create_sheet("wsp參數比對")
     ws_curve = wb.create_sheet("平倉權益曲線圖")
     ws_info = wb.create_sheet("資料來源與限制")
 
     write_main_sheet(ws_main, main_rows, files, strategies, build_date, source_dir)
     write_detail_sheet(ws_detail, rounds, picked, strategies)
     write_wfo_sheet(ws_wfo, wfos, strategies)
+    write_wsp_sheet(ws_wsp, wsp_rows)
     write_curve_sheet(ws_curve, strategies, files)
     write_info_sheet(ws_info, strategies, files, source_dir)
 
@@ -676,6 +726,7 @@ def build(source_dir, output, build_date):
                        [("A2", F_NOTE_GRAY), ("A3", F_NOTE_RED)])
     apply_sheet_layout(ws_detail, "全部輪次明細", [3], len(DETAIL_HEADERS), "A1")
     apply_sheet_layout(ws_wfo, "R3_WFO逐窗明細", [3], len(WFO_HEADERS), "A1")
+    apply_sheet_layout(ws_wsp, "wsp參數比對", [3], len(WSP_HEADERS), "A1")
     apply_sheet_layout(ws_curve, "平倉權益曲線圖", [], 2, "A1")
     apply_sheet_layout(ws_info, "資料來源與限制", [3], 2, "A1")
 

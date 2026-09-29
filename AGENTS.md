@@ -12,7 +12,9 @@
 <!-- 用 checklist 追蹤，收工技能會更新這裡 -->
 - [x] 階段一：建立參數彙整的資料格式與目錄慣例
 - [x] 階段二：匯入既有策略的最佳化結果（13 個編號策略 0~12）
-- [ ] 階段三：補齊平倉權益曲線圖與 MultiCharts 程式參數一致性比對
+- [~] 階段三（進行中，2026-09-29 更新）：
+  - [x] MultiCharts 程式參數一致性比對（13/13 一致；主表第 18 欄＋`wsp參數比對`分頁，已整合進 build_summary.py）
+  - [ ] 平倉權益曲線圖 13 張截圖（受阻：MC「策略回測績效報告」開啟入口未解，next 需問使用者或改走「跑最佳化→自動開報告」路線）
 - [ ] 階段四：納入其他策略／其他最佳化工作區的結果
 
 ## 資料夾結構
@@ -24,8 +26,10 @@
 ├── .gitignore
 ├── 策略最佳化參數彙整_20260928.xlsx   # 主成果（Muti-Agents 0924 的 13 個策略）
 ├── scripts/
-│   ├── build_summary.py   # 產出腳本：重跑即重建整份彙整 xlsx
-│   └── curated_notes.py   # 人工策展註記（商品/週期、WFO 推薦參數、備註、說明頁敘述）
+│   ├── build_summary.py   # 產出腳本：重跑即重建整份彙整 xlsx（已整合 wsp 比對＋截圖嵌入）
+│   ├── compare_wsp.py     # .wsp 程式參數一致性比對（主表第18欄＋wsp參數比對分頁；優先比對 *_BEST.wsp）
+│   ├── curated_notes.py   # 人工策展註記（商品/週期、WFO 推薦參數、備註、說明頁敘述）
+│   └── param_set.py       # 依主表最佳參數寫入 .wsp 副本（產生 *_BEST.wsp，原始檔不動）
 ├── screenshots/       # 平倉權益曲線截圖 <策略名稱>.png（目錄隨版控，內容不進版控）
 └── .git/              # git 版本控制（L2）
 ```
@@ -47,7 +51,10 @@
   - 執行：`python scripts\build_summary.py`（輸出到專案根目錄、檔名帶今天日期）
   - 可選參數：`--out <輸出路徑>`、`--source <來源工作區>`、`--date YYYY-MM-DD`
   - 核心邏輯：掃描來源目錄所有 `*.xlsx` 明細分頁 → 逐分頁取 `Net Profit` 最大列 → 選全輪次淨利最高者
-  - 附帶能力：讀 `screenshots\<策略名稱>.png` 自動嵌入「平倉權益曲線圖」分頁（圖寬上限 900px 等比縮放）
+  - 附帶能力 1：讀 `screenshots\<策略名稱>.png` 自動嵌入「平倉權益曲線圖」分頁（圖寬上限 900px 等比縮放）
+  - 附帶能力 2（2026-09-29 新增）：自動呼叫 `compare_wsp.py` 比對主表第 18 欄（所有參數設定值 vs `.wsp` input 現值，優先 `*_BEST.wsp`），並產出「wsp參數比對」分頁
+- `scripts/compare_wsp.py`：.wsp 參數比對工具（`resolve_wsp()` 依 Strategy SignalObject 之 input 區段解析；SPECIAL 特例＝Price 公式型、布林值）
+- `scripts/param_set.py`：參數寫入工具（v2 依區段位置置換，產生 `<原檔名>_BEST.wsp`，原始 .wsp 不動）
 - `scripts/curated_notes.py`：**人工**策展註記（商品/週期、R3 WFO 推薦參數、特殊備註、說明頁敘述），這些無法從來源自動推導，故與腳本分離
 - 來源工作區：`H:\我的雲端硬碟\Muti-Agents 0924`（23 份最佳化報告 .xlsx；舊成果檔記載為 `G:` 磁碟，已於 2026-09-28 更新）
 - 重跑結果固定為：策略 13 個／輪次 38 列／WFO 視窗 106 列／來源檔 23 份
