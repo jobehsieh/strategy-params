@@ -110,5 +110,5 @@
 - 時間：2026-09-29（收工）
 - 更新者：opencode @ DESKTOP-9IROG8R
 - 本次重點：參數一致性比對整合完成（13/13 一致、wsp參數比對分頁）、`compare_wsp.py`/`param_set.py` 進版控、報告窗開啟入口探索結論（[41]~[45] 只叫前景不開新窗）、「跑錯的流程」31 條收錄
-- Git push：待推（本輪變更：build_summary.py、compare_wsp.py、param_set.py、AGENTS.md、handoff.md）
+- Git push：✅ 已推（jobehsieh/strategy-params，master，commit `ec936be`，2026-09-29）
 - L3 Obsidian：未啟用，略過
