@@ -39,5 +39,5 @@
 - 時間：2026-09-29（收工）
 - 更新者：Codex @ DESKTOP-9IROG8R
 - 本次重點：完成 13 張權益曲線擷取、最終 Excel 重建與 H 槽同步；Typeless、DeskIn 已恢復。
-- Git push：待推
+- Git push：✅ 已推（jobehsieh/strategy-params，master，commit `e9551b4`，2026-09-30）
 - L3 Obsidian：未啟用，略過
